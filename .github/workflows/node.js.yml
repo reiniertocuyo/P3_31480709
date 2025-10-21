@@ -30,4 +30,4 @@ jobs:
         run: npm install -g jest
 
       - name: Ejecutar pruebas
-        run: npm test
+        run: jest
