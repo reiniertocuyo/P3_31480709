@@ -2,7 +2,9 @@
   "name": "p3-31480709",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
+    "test": "jest",
     "start": "node ./bin/www"
   },
   "dependencies": {
@@ -18,3 +20,4 @@
     "supertest": "^7.1.4"
   }
 }
+
