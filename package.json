@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "node ./bin/www",
-    "test": "jest"
+    "test": "npx jest"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
