@@ -8,6 +8,12 @@ var app = require('../app');
 var debug = require('debug')('p3-31480709:server');
 var http = require('http');
 
+
+const sequelize = require('../config/database');
+require('../models/user'); // Importa el modelo para que Sequelize lo registre
+
+
+
 /**
  * Get port from environment and store in Express.
  */
@@ -25,7 +31,19 @@ var server = http.createServer(app);
  * Listen on provided port, on all network interfaces.
  */
 
-server.listen(port);
+sequelize.sync({ alter: true })
+  .then(() => {
+    console.log('Base de datos sincronizada');
+
+    server.listen(port);
+    server.on('error', onError);
+    server.on('listening', onListening);
+  })
+  .catch(err => {
+    console.error('Error al sincronizar la base de datos:', err);
+    process.exit(1);
+  });
+
 server.on('error', onError);
 server.on('listening', onListening);
 
