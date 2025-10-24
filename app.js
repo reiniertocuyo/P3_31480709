@@ -8,6 +8,9 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var endpointsRouter = require('./routes/endpoints');
 
+
+const authRouter = require('./routes/auth');
+
 var app = express(); //Crea una instancia de la aplicación Express. Aquí es donde defines cómo responde tu servidor
 
 const setupSwagger = require('./swagger');// Esto carga el swagger
@@ -18,6 +21,8 @@ app.use(express.json()); //Permite que tu servidor entienda cuerpos JSON en las 
 app.use(express.urlencoded({ extended: false })); //Permite procesar datos enviados en formularios HTML (formato application/x-www-form-urlencoded).
 app.use(cookieParser()); //Activa el middleware para leer cookies en las peticiones.
 app.use(express.static(path.join(__dirname, 'public'))); //Sirve archivos estáticos (HTML, CSS, imágenes) desde la carpeta public
+
+app.use('/auth', authRouter);
 
 app.use('/', indexRouter); //Conecta el archivo routes/index.js a la ruta raíz /.
 app.use('/users', usersRouter);//Conecta el archivo routes/users.js a la ruta /users.
