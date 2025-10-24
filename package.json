@@ -2,7 +2,7 @@
   "name": "p3-31480709",
   "version": "0.0.0",
   "private": true,
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "start": "node ./bin/www",
     "test": "./node_modules/.bin/jest"
