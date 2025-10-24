@@ -10,6 +10,9 @@ var endpointsRouter = require('./routes/endpoints');
 
 var app = express(); //Crea una instancia de la aplicación Express. Aquí es donde defines cómo responde tu servidor
 
+const setupSwagger = require('./swagger');// Esto carga el swagger
+setupSwagger(app);//Esto activa el swagger
+
 app.use(logger('dev')); //Activa el logger para mostrar en consola cada petición entrante.
 app.use(express.json()); //Permite que tu servidor entienda cuerpos JSON en las peticiones (por ejemplo, cuando alguien hace un POST con datos).
 app.use(express.urlencoded({ extended: false })); //Permite procesar datos enviados en formularios HTML (formato application/x-www-form-urlencoded).
