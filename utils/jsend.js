@@ -1,11 +1,11 @@
 //Formato JSend
 
 function success(data) {
-  return { status: 'success/sucedio', data };
+  return { status: 'success', data };
 }
 
 function fail(data) {
-  return { status: 'fail/fallo', data };
+  return { status: 'fail', data };
 }
 
 function error(message, code = 500) {
