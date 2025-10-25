@@ -7,13 +7,11 @@ const options = {
     openapi: '3.0.0',
     info: {
       title: 'P3 API',
-      version: '0.0.1',
+      version: '0.1.0',
       description: 'Documentación en SWAGGER de la API del proyecto P3_31480709',
     },
   },
-  apis: ['./routes/*.js'], // Aquí se escanean tus rutas para anotaciones
-  apis: ['./config/*.js'],
-  apis: ['./models/*.js'],
+  apis: ['./routes/*.js', './config/*.js', './models/*.js'],
 };
 
 const swaggerSpec = swaggerJSDoc(options);

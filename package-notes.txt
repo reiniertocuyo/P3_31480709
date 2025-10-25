@@ -1,0 +1,13 @@
+Funcionar en windows
+
+"scripts": {
+  "start": "node ./bin/www",
+  "test": "jest"
+}
+
+funcionar en linux/github
+
+  "scripts": {
+    "start": "node ./bin/www",
+    "test": "./node_modules/.bin/jest"
+  },

@@ -1,12 +1,48 @@
 /**
  * @swagger
- * /about:
- *   get:
- *     summary: Modelo user
- *     responses:
- *       200:
- *         description: Define el modelo User con los campos requeridos, Aplica validaciones (email único, formato válido), Incluye timestamps para createdAt y updatedAt
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
  */
+
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     User:
+ *       type: object
+ *       required:
+ *         - fullName
+ *         - email
+ *         - password
+ *       properties:
+ *         id:
+ *           type: integer
+ *           example: 1
+ *         fullName:
+ *           type: string
+ *           example: Reinier Tocuyo
+ *         email:
+ *           type: string
+ *           format: email
+ *           example: reinier@example.com
+ *         password:
+ *           type: string
+ *           example: 12345678
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *           example: 2025-10-24T23:40:00Z
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *           example: 2025-10-24T23:45:00Z
+ */
+
 
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
