@@ -33,4 +33,4 @@ jobs:
         run: npm rebuild sqlite3
 
       - name: Ejecutar pruebas
-        run: jest
+        run: npx jest
