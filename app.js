@@ -10,11 +10,17 @@ var endpointsRouter = require('./routes/endpoints');
 
 
 const authRouter = require('./routes/auth');
+const { sequelize } = require('./models');
 
 var app = express(); //Crea una instancia de la aplicación Express. Aquí es donde defines cómo responde tu servidor
 
 const setupSwagger = require('./swagger');// Esto carga el swagger
 setupSwagger(app);//Esto activa el swagger
+
+
+sequelize.authenticate()
+  .then(() => console.log('0 Conexión a la base de datos establecida.'))
+  .catch(err => console.error('1 Error al conectar con la base de datos:', err));
 
 app.use(logger('dev')); //Activa el logger para mostrar en consola cada petición entrante.
 app.use(express.json()); //Permite que tu servidor entienda cuerpos JSON en las peticiones (por ejemplo, cuando alguien hace un POST con datos).

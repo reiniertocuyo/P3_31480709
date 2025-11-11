@@ -9,7 +9,7 @@ const sequelize = new Sequelize({
 });
 
 // Cargar modelos
-const User = require('./user')(sequelize, DataTypes);
+//const User = require('./user')(sequelize, DataTypes);
 const Category = require('./category')(sequelize, DataTypes);
 const Tag = require('./tag')(sequelize, DataTypes);
 const Product = require('./product')(sequelize, DataTypes);
@@ -23,7 +23,6 @@ Product.associate({ Category, Tag });
 module.exports = {
   sequelize,
   Sequelize,
-  User,
   Category,
   Tag,
   Product
