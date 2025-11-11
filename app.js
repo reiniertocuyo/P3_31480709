@@ -30,7 +30,7 @@ app.use(express.urlencoded({ extended: false })); //Permite procesar datos envia
 app.use(cookieParser()); //Activa el middleware para leer cookies en las peticiones.
 app.use(express.static(path.join(__dirname, 'public'))); //Sirve archivos estáticos (HTML, CSS, imágenes) desde la carpeta public
 
-app.use('/auth', authRouter);
+app.use('/', authRouter);//app.use('/auth', authRouter);
 
 app.use('/', indexRouter); //Conecta el archivo routes/index.js a la ruta raíz /.
 app.use('/users', usersRouter);//Conecta el archivo routes/users.js a la ruta /users.
