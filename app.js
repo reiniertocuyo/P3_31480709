@@ -8,6 +8,8 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var endpointsRouter = require('./routes/endpoints');
 
+const categoryRouter = require('./routes/categories');//Task2
+const tagRouter = require('./routes/tags');//Task2
 
 const authRouter = require('./routes/auth');
 const { sequelize } = require('./models');
@@ -32,6 +34,10 @@ app.use('/auth', authRouter);
 
 app.use('/', indexRouter); //Conecta el archivo routes/index.js a la ruta raíz /.
 app.use('/users', usersRouter);//Conecta el archivo routes/users.js a la ruta /users.
+
+//task2
+app.use('/categories', categoryRouter);
+app.use('/tags', tagRouter);
 
 //El metodo para modularizar sera Express Router
 //Aqui empiezan mis modificaciones
