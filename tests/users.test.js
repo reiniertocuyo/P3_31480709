@@ -10,7 +10,7 @@ describe('Pruebas de autorización en rutas protegidas', () => {
   beforeAll(async () => {
     // Registramos un usuario y obtenemos un token válido
     await request(app)
-      .post('/auth/register')
+      .post('/register')
       .send({
         fullName: 'Usuario Autorizado',
         email: testEmail,
@@ -18,7 +18,7 @@ describe('Pruebas de autorización en rutas protegidas', () => {
       });
 
     const loginRes = await request(app)
-      .post('/auth/login')
+      .post('/login')
       .send({
         email: testEmail,
         password: testPassword
