@@ -3,6 +3,66 @@ const router = express.Router();
 const controller = require('../controllers/productController');
 const auth = require('../middleware/authMiddleware');
 
+
+/**
+ * @swagger
+ * /products:
+ *   get:
+ *     summary: Obtener productos con filtros públicos
+ *     tags: [Products]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: category
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: tags
+ *         schema:
+ *           type: string
+ *           description: IDs separados por coma (ej. 1,2,3)
+ *       - in: query
+ *         name: price_min
+ *         schema:
+ *           type: number
+ *       - in: query
+ *         name: price_max
+ *         schema:
+ *           type: number
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: format
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: publisher
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: release_year
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Lista de productos filtrados
+ *       400:
+ *         description: Parámetros inválidos
+ */
+router.get('/', controller.getAllPublicProducts);
+
+
+
+//apartir de aqui abajo empiezan las rutas protegidas y esas cosas
 router.use(auth);
 
 /**

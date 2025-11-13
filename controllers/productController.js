@@ -74,3 +74,14 @@ exports.remove = async (req, res) => {
     res.status(500).json(error('Error al eliminar producto'));
   }
 };
+
+const productRepository = require('../repositories/productRepository');
+exports.getAllPublicProducts = async (req, res) => {
+  try {
+    const filters = req.query;
+    const result = await productRepository.findWithFilters(filters);
+    res.json(success(result));
+  } catch (err) {
+    res.status(500).json(error('Error al obtener productos'));
+  }
+};
