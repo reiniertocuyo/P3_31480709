@@ -1,40 +1,39 @@
 const express = require('express');
 const router = express.Router();
-
-const usersController = require('../controllers/usersController');
 const authMiddleware = require('../middleware/authMiddleware');
+const categoryController = require('../controllers/categoryController');
 
-router.use(authMiddleware); // protege todas las rutas
+router.use(authMiddleware);
 
 /**
  * @swagger
  * tags:
- *   name: Users
- *   description: Gestión de usuarios registrados
+ *   name: Categories
+ *   description: Gestión de categorías de productos
  */
 
 /**
  * @swagger
- * /users:
+ * /categories:
  *   get:
- *     summary: Obtener todos los usuarios
- *     tags: [Users]
+ *     summary: Obtener todas las categorías
+ *     tags: [Categories]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Lista de usuarios
+ *         description: Lista de categorías
  *       401:
  *         description: Token no proporcionado o inválido
  */
-router.get('/', usersController.getAllUsers);
+router.get('/', categoryController.getAllCategories);
 
 /**
  * @swagger
- * /users/{id}:
+ * /categories/{id}:
  *   get:
- *     summary: Obtener usuario por ID
- *     tags: [Users]
+ *     summary: Obtener una categoría por ID
+ *     tags: [Categories]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -45,20 +44,20 @@ router.get('/', usersController.getAllUsers);
  *           type: integer
  *     responses:
  *       200:
- *         description: Usuario encontrado
+ *         description: Categoría encontrada
  *       404:
- *         description: Usuario no encontrado
+ *         description: Categoría no encontrada
  *       401:
  *         description: Token no proporcionado o inválido
  */
-router.get('/:id', usersController.getUserById);
+router.get('/:id', categoryController.getCategoryById);
 
 /**
  * @swagger
- * /users:
+ * /categories:
  *   post:
- *     summary: Crear nuevo usuario
- *     tags: [Users]
+ *     summary: Crear una nueva categoría
+ *     tags: [Categories]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -66,23 +65,30 @@ router.get('/:id', usersController.getUserById);
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/User'
+ *             type: object
+ *             required:
+ *               - name
+ *             properties:
+ *               name:
+ *                 type: string
+ *               description:
+ *                 type: string
  *     responses:
  *       201:
- *         description: Usuario creado
+ *         description: Categoría creada
  *       400:
  *         description: Error de validación
  *       401:
  *         description: Token no proporcionado o inválido
  */
-router.post('/', usersController.createUser);
+router.post('/', categoryController.createCategory);
 
 /**
  * @swagger
- * /users/{id}:
+ * /categories/{id}:
  *   put:
- *     summary: Actualizar usuario
- *     tags: [Users]
+ *     summary: Actualizar una categoría existente
+ *     tags: [Categories]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -96,25 +102,30 @@ router.post('/', usersController.createUser);
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/User'
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               description:
+ *                 type: string
  *     responses:
  *       200:
- *         description: Usuario actualizado
+ *         description: Categoría actualizada
  *       400:
  *         description: Error de validación
  *       404:
- *         description: Usuario no encontrado
+ *         description: Categoría no encontrada
  *       401:
  *         description: Token no proporcionado o inválido
  */
-router.put('/:id', usersController.updateUser);
+router.put('/:id', categoryController.updateCategory);
 
 /**
  * @swagger
- * /users/{id}:
+ * /categories/{id}:
  *   delete:
- *     summary: Eliminar usuario
- *     tags: [Users]
+ *     summary: Eliminar una categoría
+ *     tags: [Categories]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -125,12 +136,12 @@ router.put('/:id', usersController.updateUser);
  *           type: integer
  *     responses:
  *       200:
- *         description: Usuario eliminado
+ *         description: Categoría eliminada
  *       404:
- *         description: Usuario no encontrado
+ *         description: Categoría no encontrada
  *       401:
  *         description: Token no proporcionado o inválido
  */
-router.delete('/:id', usersController.deleteUser);
+router.delete('/:id', categoryController.deleteCategory);
 
 module.exports = router;

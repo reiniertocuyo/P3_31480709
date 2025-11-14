@@ -15,7 +15,7 @@ describe('Pruebas de Registro y Login', () => {
 
   test('Registro exitoso con datos válidos', async () => {
     const res = await request(app)
-      .post('/auth/register')
+      .post('/register')
       .send({
         fullName: 'Usuario Test',
         email: testEmail,
@@ -30,7 +30,7 @@ describe('Pruebas de Registro y Login', () => {
   test('Reegistro con email duplicado', async () => {
     // Primero registramos
     await request(app)
-      .post('/auth/register')
+      .post('/register')
       .send({
         fullName: 'Usuario Duplicado',
         email: testEmail,
@@ -39,7 +39,7 @@ describe('Pruebas de Registro y Login', () => {
 
     // Luego intentamos registrar el mismo email otra vez
     const res = await request(app)
-      .post('/auth/register')
+      .post('/register')
       .send({
         fullName: 'Usuario Duplicado',
         email: testEmail,
@@ -54,7 +54,7 @@ describe('Pruebas de Registro y Login', () => {
   test('Login exitoso con credenciales válidas', async () => {
     // Registramos primero
     await request(app)
-      .post('/auth/register')
+      .post('/register')
       .send({
         fullName: 'Usuario Login',
         email: testEmail,
@@ -63,7 +63,7 @@ describe('Pruebas de Registro y Login', () => {
 
     // Luego hacemos login
     const res = await request(app)
-      .post('/auth/login')
+      .post('/login')
       .send({
         email: testEmail,
         password: testPassword
@@ -76,7 +76,7 @@ describe('Pruebas de Registro y Login', () => {
 
   test('Login con email incorrecto', async () => {
     const res = await request(app)
-      .post('/auth/login')
+      .post('/login')
       .send({
         email: 'noexiste@example.com',
         password: testPassword
@@ -90,7 +90,7 @@ describe('Pruebas de Registro y Login', () => {
   test('Login con contraseña incorrecta', async () => {
     // Registramos primero
     await request(app)
-      .post('/auth/register')
+      .post('/register')
       .send({
         fullName: 'Usuario Contraseña Incorrecta',
         email: testEmail,
@@ -99,7 +99,7 @@ describe('Pruebas de Registro y Login', () => {
 
     // Intentamos login con contraseña incorrecta
     const res = await request(app)
-      .post('/auth/login')
+      .post('/login')
       .send({
         email: testEmail,
         password: 'claveIncorrecta'

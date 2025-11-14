@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { success, fail, error } = require('../utils/jsend');
 
-const JWT_SECRET = 'tu_clave_secreta_segura'; // cámbiala en producción
+const JWT_SECRET = 'tu_clave_secreta_segura'; // cambiar en producción
 const JWT_EXPIRES_IN = '1h';
 
 exports.register = async (req, res) => {

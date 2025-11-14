@@ -1,40 +1,39 @@
 const express = require('express');
 const router = express.Router();
-
-const usersController = require('../controllers/usersController');
 const authMiddleware = require('../middleware/authMiddleware');
+const tagController = require('../controllers/tagController');
 
-router.use(authMiddleware); // protege todas las rutas
+router.use(authMiddleware);
 
 /**
  * @swagger
  * tags:
- *   name: Users
- *   description: Gestión de usuarios registrados
+ *   name: Tags
+ *   description: Gestión de etiquetas asociadas a productos
  */
 
 /**
  * @swagger
- * /users:
+ * /tags:
  *   get:
- *     summary: Obtener todos los usuarios
- *     tags: [Users]
+ *     summary: Obtener todas las etiquetas
+ *     tags: [Tags]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Lista de usuarios
+ *         description: Lista de etiquetas
  *       401:
  *         description: Token no proporcionado o inválido
  */
-router.get('/', usersController.getAllUsers);
+router.get('/', tagController.getAllTags);
 
 /**
  * @swagger
- * /users/{id}:
+ * /tags/{id}:
  *   get:
- *     summary: Obtener usuario por ID
- *     tags: [Users]
+ *     summary: Obtener una etiqueta por ID
+ *     tags: [Tags]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -45,20 +44,20 @@ router.get('/', usersController.getAllUsers);
  *           type: integer
  *     responses:
  *       200:
- *         description: Usuario encontrado
+ *         description: Etiqueta encontrada
  *       404:
- *         description: Usuario no encontrado
+ *         description: Etiqueta no encontrada
  *       401:
  *         description: Token no proporcionado o inválido
  */
-router.get('/:id', usersController.getUserById);
+router.get('/:id', tagController.getTagById);
 
 /**
  * @swagger
- * /users:
+ * /tags:
  *   post:
- *     summary: Crear nuevo usuario
- *     tags: [Users]
+ *     summary: Crear una nueva etiqueta
+ *     tags: [Tags]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -66,23 +65,28 @@ router.get('/:id', usersController.getUserById);
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/User'
+ *             type: object
+ *             required:
+ *               - name
+ *             properties:
+ *               name:
+ *                 type: string
  *     responses:
  *       201:
- *         description: Usuario creado
+ *         description: Etiqueta creada
  *       400:
  *         description: Error de validación
  *       401:
  *         description: Token no proporcionado o inválido
  */
-router.post('/', usersController.createUser);
+router.post('/', tagController.createTag);
 
 /**
  * @swagger
- * /users/{id}:
+ * /tags/{id}:
  *   put:
- *     summary: Actualizar usuario
- *     tags: [Users]
+ *     summary: Actualizar una etiqueta existente
+ *     tags: [Tags]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -96,25 +100,28 @@ router.post('/', usersController.createUser);
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/User'
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
  *     responses:
  *       200:
- *         description: Usuario actualizado
+ *         description: Etiqueta actualizada
  *       400:
  *         description: Error de validación
  *       404:
- *         description: Usuario no encontrado
+ *         description: Etiqueta no encontrada
  *       401:
  *         description: Token no proporcionado o inválido
  */
-router.put('/:id', usersController.updateUser);
+router.put('/:id', tagController.updateTag);
 
 /**
  * @swagger
- * /users/{id}:
+ * /tags/{id}:
  *   delete:
- *     summary: Eliminar usuario
- *     tags: [Users]
+ *     summary: Eliminar una etiqueta
+ *     tags: [Tags]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -125,12 +132,12 @@ router.put('/:id', usersController.updateUser);
  *           type: integer
  *     responses:
  *       200:
- *         description: Usuario eliminado
+ *         description: Etiqueta eliminada
  *       404:
- *         description: Usuario no encontrado
+ *         description: Etiqueta no encontrada
  *       401:
  *         description: Token no proporcionado o inválido
  */
-router.delete('/:id', usersController.deleteUser);
+router.delete('/:id', tagController.deleteTag);
 
 module.exports = router;
