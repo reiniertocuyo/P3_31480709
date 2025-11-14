@@ -33,22 +33,25 @@ describe('Pruebas de rutas protegidas /products', () => {
       .post('/categories')
       .set('Authorization', `Bearer ${validToken}`)
       .send({
-        name: 'Cartoon Network',
+        name: 'Cartoon Network TEST'+ Date.now(),
         description: 'Series animadas distribuidas por Cartoon Network'
       });
 
+      expect(categoryRes.statusCode).toBe(201);
+      expect(categoryRes.body.status).toBe('success');
+      expect(categoryRes.body.data).toBeDefined();
     createdCategoryId = categoryRes.body.data.id;
 
     // Crear etiquetas de prueba
     const tagRes1 = await request(app)
       .post('/tags')
       .set('Authorization', `Bearer ${validToken}`)
-      .send({ name: 'Acción' });
+      .send({ name: 'Acción TEST'+ Date.now() });
 
     const tagRes2 = await request(app)
       .post('/tags')
       .set('Authorization', `Bearer ${validToken}`)
-      .send({ name: 'Aventura' });
+      .send({ name: 'Aventura TEST'+ Date.now() });
 
     createdTagIds = [tagRes1.body.data.id, tagRes2.body.data.id];
   });

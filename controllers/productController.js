@@ -88,20 +88,24 @@ exports.getAllPublicProducts = async (req, res) => {
 
 
 const { buildProductUrl } = require('../utils/url');
+
 exports.getByIdAndSlug = async (req, res) => {
   try {
     const { id, slug } = req.params;
 
     const product = await Product.findByPk(id, { include: [Category, Tag] });
-    if (!product) return res.status(404).json(fail({ message: 'Producto no encontrado' }));
+    if (!product) {
+      console.log('No se encontró producto, devolviendo fail');
+      return res.status(404).json(fail({ message: 'Producto no encontrado' }));
+    }
 
     if (product.slug !== slug) {
       const correctUrl = buildProductUrl(product.id, product.slug);
       return res.redirect(301, correctUrl);
     }
 
-    res.json(success(product));
+    return res.json(success(product));
   } catch (err) {
-    res.status(500).json(error('Error al obtener producto público'));
+    return res.status(500).json(error('Error al obtener producto público'));
   }
 };

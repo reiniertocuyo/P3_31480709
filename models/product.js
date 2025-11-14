@@ -24,13 +24,15 @@ module.exports = (sequelize, DataTypes) => {
     });
   };
 
-  Product.beforeCreate(product => {
-    product.slug = slugify(product.name, { lower: true });
-  });
+  // Hook único para crear y actualizar slug
+  const generateSlug = product => {
+    if (!product.slug || product.changed('name')) {
+      product.slug = slugify(product.name, { lower: true });
+    }
+  };
 
-  Product.beforeUpdate(product => {
-    product.slug = slugify(product.name, { lower: true });
-  });
+  Product.beforeCreate(generateSlug);
+  Product.beforeUpdate(generateSlug);
 
   return Product;
 };

@@ -1,7 +1,12 @@
 var express = require('express'); //Carga el framework Express, que te permite crear servidores web y APIs fácilmente.
 var path = require('path'); //Módulo nativo de Node.js para manejar rutas de archivos. Lo usas para servir archivos estáticos.
+
+const { getByIdAndSlug } = require('./controllers/productController');//task2
+
 var cookieParser = require('cookie-parser'); //Middleware que permite leer cookies en las peticiones HTTP. Útil si tu API necesita sesiones o autenticación.
 var logger = require('morgan'); //Middleware que imprime en consola cada petición que llega al servidor (método, ruta, tiempo, etc.). Muy útil para depurar.
+
+
 
 //No entiendo que hacen estos, algo con las rutas
 var indexRouter = require('./routes/index');
@@ -37,6 +42,7 @@ app.use('/', indexRouter); //Conecta el archivo routes/index.js a la ruta raíz 
 app.use('/users', usersRouter);//Conecta el archivo routes/users.js a la ruta /users.
 
 //task2
+app.get('/p/:id-:slug', getByIdAndSlug);
 app.use('/categories', categoryRouter);
 app.use('/tags', tagRouter);
 app.use('/products', productRoutes);

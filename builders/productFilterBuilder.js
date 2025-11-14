@@ -12,9 +12,9 @@ module.exports = (params) => {
   // Búsqueda textual
   if (params.search) {
     where[Op.or] = [
-      { name: { [Op.iLike]: `%${params.search}%` } },
-      { description: { [Op.iLike]: `%${params.search}%` } },
-      { series: { [Op.iLike]: `%${params.search}%` } }
+      { name: { [Op.like]: `%${params.search}%` } },
+      { description: { [Op.like]: `%${params.search}%` } },
+      { series: { [Op.like]: `%${params.search}%` } }
     ];
   }
 
@@ -55,6 +55,25 @@ module.exports = (params) => {
       required: true
     });
   }
+
+
+  // Filtro por idioma
+if (params.language) {
+  where.language = params.language;
+}
+
+// Filtro por temporada
+if (params.season) {
+  where.season = parseInt(params.season);
+}
+
+// Filtro por stock (rango)
+if (params.stock_min || params.stock_max) {
+  where.stock = {};
+  if (params.stock_min) where.stock[Op.gte] = parseInt(params.stock_min);
+  if (params.stock_max) where.stock[Op.lte] = parseInt(params.stock_max);
+}
+
 
   return { where, include, limit, offset };
 };
