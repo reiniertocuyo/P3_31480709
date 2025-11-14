@@ -6,6 +6,40 @@ const auth = require('../middleware/authMiddleware');
 
 /**
  * @swagger
+ * /p/{id}-{slug}:
+ *   get:
+ *     summary: Obtener producto público por ID y slug
+ *     tags: [Products]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - in: path
+ *         name: slug
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Producto encontrado con slug correcto
+ *       301:
+ *         description: Redirección permanente a la URL correcta si el slug no coincide
+ *         headers:
+ *           Location:
+ *             description: URL corregida del producto
+ *             schema:
+ *               type: string
+ *       404:
+ *         description: Producto no encontrado
+ */
+router.get('/p/:id-:slug', controller.getByIdAndSlug);
+
+
+
+/**
+ * @swagger
  * /products:
  *   get:
  *     summary: Obtener productos con filtros públicos
