@@ -6,6 +6,19 @@ const auth = require('../middleware/authMiddleware');
 
 /**
  * @swagger
+ * /products/all:
+ *   get:
+ *     summary: Obtener todos los productos sin filtros ni paginación
+ *     tags: [Products]
+ *     responses:
+ *       200:
+ *         description: Lista completa de productos
+ */
+router.get('/all', controller.getAllProductsRaw);
+
+
+/**
+ * @swagger
  * /p/{id}-{slug}:
  *   get:
  *     summary: Obtener producto público por ID y slug

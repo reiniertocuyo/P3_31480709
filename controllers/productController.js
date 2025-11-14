@@ -109,3 +109,23 @@ exports.getByIdAndSlug = async (req, res) => {
     return res.status(500).json(error('Error al obtener producto público'));
   }
 };
+
+
+//const { Product, Category, Tag } = require('../models');
+exports.getAllProductsRaw = async (req, res) => {
+  try {
+    const products = await Product.findAll({
+      include: [Category, Tag]
+    });
+    return res.json({
+      status: 'success',
+      data: products
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: 'error',
+      message: 'Error al obtener productos',
+      data: error.message
+    });
+  }
+};
