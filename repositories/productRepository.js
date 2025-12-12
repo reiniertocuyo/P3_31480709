@@ -19,3 +19,23 @@ exports.findWithFilters = async (queryParams) => {
     data: products.rows
   };
 };
+
+
+// Verificar stock disponible
+exports.hasSufficientStock = async (productId, quantity) => {
+  const product = await Product.findByPk(productId);
+  if (!product) return false;
+  return product.stock >= quantity;
+};
+
+// Reducir stock después de una compra
+exports.reduceStock = async (productId, quantity, transaction) => {
+  const product = await Product.findByPk(productId);
+  if (!product) throw new Error('Producto no encontrado');
+
+  if (product.stock < quantity) throw new Error('Stock insuficiente');
+
+  product.stock -= quantity;
+  await product.save({ transaction });
+  return product;
+};
