@@ -19,3 +19,30 @@ exports.findWithFilters = async (queryParams) => {
     data: products.rows
   };
 };
+
+
+// Verificar stock disponible
+exports.hasSufficientStock = async (productId, quantity) => {
+  const product = await Product.findByPk(productId);
+  if (!product) return false;
+  return product.stock >= quantity;
+};
+
+// Reducir stock después de una compra
+exports.reduceStock = async (productId, quantity, transaction) => {
+  const product = await Product.findByPk(productId);
+  if (!product) throw new Error('Producto no encontrado');
+
+  if (product.stock < quantity) throw new Error('Stock insuficiente');
+
+  product.stock -= quantity;
+  
+  // CORRECCIÓN CLAVE: Usamos 'fields' para asegurar que SOLO se actualice el campo 'stock'.
+  // Esto evita que el hook que genera/valida el slug se ejecute.
+  await product.save({ 
+    transaction,
+    fields: ['stock'] // <--- ¡Esto soluciona el problema del slug!
+  });
+  
+  return product;
+};
