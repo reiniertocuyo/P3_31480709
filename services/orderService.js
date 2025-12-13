@@ -88,8 +88,13 @@ class OrderService {
   /**
    * Obtiene el historial de órdenes del usuario con paginación.
    */
-  async getOrdersByUser(userId, page, limit) {
-    return await orderRepository.getOrdersByUser(userId, page, limit);
+
+async getOrdersByUser(userId, page, limit) {
+    // Aquí es donde se recibe el objeto: { count: N, rows: [...] }
+    const result = await orderRepository.getOrdersByUser(userId, page, limit); 
+    
+    // CAMBIO CRÍTICO: Devolver solo el array 'rows'
+    return result.rows; 
   }
 
   /**

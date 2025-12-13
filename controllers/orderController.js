@@ -21,6 +21,14 @@ exports.checkout = async (req, res) => {
     const result = await orderService.checkout(userId, items, paymentMethod, paymentDetails);
     return res.status(201).json(success(result));
   } catch (err) {
+
+    // -- INICIO: CAZA DEL ERROR CRÍTICO --
+    //console.error('#####################################################');
+    //console.error('ERROR CRÍTICO NO MAPPEADO EN CHECKOUT:');
+    //console.error(err); // Esto imprimirá el error completo, incluyendo stack trace
+    //console.error('#####################################################');
+    // // -- FIN: CAZA DEL ERROR CRÍTICO -
+
     // Mapear errores conocidos
     if (err.message.includes('Stock insuficiente')) {
       return res.status(400).json(fail({ message: err.message }));
