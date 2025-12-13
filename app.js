@@ -28,9 +28,26 @@ const setupSwagger = require('./swagger');// Esto carga el swagger
 setupSwagger(app);//Esto activa el swagger
 
 
+//sequelize.authenticate()
+  //.then(() => console.log('0 Conexión a la base de datos establecida.'))
+  //.catch(err => console.error('1 Error al conectar con la base de datos:', err));
+
+// --- INICIO DE LA CORRECCIÓN: Autenticar y Sincronizar (Crear Tablas) ---
 sequelize.authenticate()
-  .then(() => console.log('0 Conexión a la base de datos establecida.'))
-  .catch(err => console.error('1 Error al conectar con la base de datos:', err));
+    .then(() => {
+        console.log('0 Conexión a la base de datos establecida.');
+        
+        // 1. SINCRONIZACIÓN: Creamos las tablas faltantes (Orders y OrderItems)
+        // Usamos { force: false } para no borrar datos de Products, Users, etc.
+        return sequelize.sync({ force: false }); 
+    })
+    .then(() => {
+        console.log('2 Base de datos sincronizada. Tablas listas para su uso.');
+    })
+    .catch(err => {
+        console.error('1 Error al conectar o sincronizar la base de datos:', err);
+    });
+// --- FIN DE LA CORRECCIÓN ---
 
 app.use(logger('dev')); //Activa el logger para mostrar en consola cada petición entrante.
 app.use(express.json()); //Permite que tu servidor entienda cuerpos JSON en las peticiones (por ejemplo, cuando alguien hace un POST con datos).
