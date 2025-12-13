@@ -7,6 +7,16 @@ module.exports = (sequelize, DataTypes) => {
     unitPrice: {
       type: DataTypes.FLOAT,
       allowNull: false
+    },
+    currency: {
+      type: DataTypes.STRING(3),
+      allowNull: false,
+      defaultValue: 'USD'
+    },
+    subtotal: {
+      type: DataTypes.FLOAT,
+      allowNull: false,
+      defaultValue: 0
     }
   }, {});
 
@@ -20,3 +30,4 @@ module.exports = (sequelize, DataTypes) => {
 
   return OrderItem;
 };
+

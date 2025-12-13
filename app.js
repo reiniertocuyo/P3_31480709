@@ -6,7 +6,7 @@ const { getByIdAndSlug } = require('./controllers/productController');//task2
 var cookieParser = require('cookie-parser'); //Middleware que permite leer cookies en las peticiones HTTP. Útil si tu API necesita sesiones o autenticación.
 var logger = require('morgan'); //Middleware que imprime en consola cada petición que llega al servidor (método, ruta, tiempo, etc.). Muy útil para depurar.
 
-
+require('dotenv').config();//Task3
 
 //No entiendo que hacen estos, algo con las rutas
 var indexRouter = require('./routes/index');
@@ -16,6 +16,8 @@ var endpointsRouter = require('./routes/endpoints');
 const categoryRouter = require('./routes/categories');//Task2
 const tagRouter = require('./routes/tags');//Task2
 const productRoutes = require('./routes/products');//Task2
+
+const ordersRouter = require('./routes/orders');//Task3
 
 const authRouter = require('./routes/auth');
 const { sequelize } = require('./models');
@@ -46,6 +48,9 @@ app.get('/p/:id-:slug', getByIdAndSlug);
 app.use('/categories', categoryRouter);
 app.use('/tags', tagRouter);
 app.use('/products', productRoutes);
+
+//task3
+app.use('/orders', ordersRouter);
 
 //El metodo para modularizar sera Express Router
 //Aqui empiezan mis modificaciones

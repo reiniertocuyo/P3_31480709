@@ -9,8 +9,9 @@ class OrderService {
    * @param {number} userId - ID del usuario
    * @param {Array} items - [{ productId, quantity }]
    * @param {string} paymentMethod - 'credit_card' (por ahora)
+   * @param {Object} paymentDetails - Datos requeridos por fakePayment
    */
-  async checkout(userId, items, paymentMethod) {
+  async checkout(userId, items, paymentMethod, paymentDetails) {
     return await sequelize.transaction(async (transaction) => {
       // 1. Verificación de stock
       for (const item of items) {
@@ -25,7 +26,7 @@ class OrderService {
       const enrichedItems = [];
       for (const item of items) {
         const product = await productRepository.reduceStock(item.productId, item.quantity, transaction);
-        const unitPrice = product.price; // precio actual del producto
+        const unitPrice = product.price;
         totalAmount += unitPrice * item.quantity;
 
         enrichedItems.push({
@@ -39,7 +40,16 @@ class OrderService {
       let paymentResult;
       if (paymentMethod === 'credit_card') {
         const strategy = new CreditCardPaymentStrategy();
-        paymentResult = await strategy.pay({ amount: totalAmount, userId });
+        paymentResult = await strategy.pay({
+          'full-name': paymentDetails['full-name'],
+          'card-number': paymentDetails['card-number'],
+          'expiration-month': paymentDetails['expiration-month'],
+          'expiration-year': paymentDetails['expiration-year'],
+          cvv: paymentDetails.cvv,
+          amount: totalAmount,
+          currency: paymentDetails.currency,
+          description: paymentDetails.description
+        });
       } else {
         throw new Error(`Método de pago no soportado: ${paymentMethod}`);
       }
@@ -54,6 +64,10 @@ class OrderService {
         enrichedItems,
         totalAmount,
         'COMPLETED',
+        paymentResult.reference,
+        paymentDetails.currency,
+        paymentDetails.description,
+        new Date(),
         transaction
       );
 
@@ -61,6 +75,8 @@ class OrderService {
         orderId: order.id,
         status: 'COMPLETED',
         totalAmount,
+        currency: paymentDetails.currency,
+        description: paymentDetails.description,
         paymentReference: paymentResult.reference,
         items: enrichedItems
       };

@@ -5,18 +5,31 @@ const { success, fail, error } = require('../utils/jsend');
 exports.checkout = async (req, res) => {
   try {
     const userId = req.user.id; // viene del authMiddleware
-    const { items, paymentMethod } = req.body;
+    const { items, paymentMethod, paymentDetails } = req.body;
 
+    // Validaciones básicas
     if (!items || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json(fail({ message: 'Items requeridos para el checkout' }));
     }
     if (!paymentMethod) {
       return res.status(400).json(fail({ message: 'Método de pago requerido' }));
     }
+    if (!paymentDetails) {
+      return res.status(400).json(fail({ message: 'Detalles de pago requeridos' }));
+    }
 
-    const result = await orderService.checkout(userId, items, paymentMethod);
+    const result = await orderService.checkout(userId, items, paymentMethod, paymentDetails);
     return res.status(201).json(success(result));
   } catch (err) {
+    // Mapear errores conocidos
+    if (err.message.includes('Stock insuficiente')) {
+      return res.status(400).json(fail({ message: err.message }));
+    }
+    if (err.message.startsWith('Pago fallido')) {
+      return res.status(402).json(fail({ message: err.message }));
+    }
+
+    // Errores inesperados
     return res.status(500).json(error({ message: err.message }));
   }
 };

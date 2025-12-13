@@ -9,6 +9,23 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.FLOAT,
       allowNull: false,
       defaultValue: 0
+    },
+    currency: {
+      type: DataTypes.STRING(3),
+      allowNull: false,
+      defaultValue: 'USD'
+    },
+    description: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    paymentReference: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    transactionDate: {
+      type: DataTypes.DATE,
+      allowNull: true
     }
   }, {});
 

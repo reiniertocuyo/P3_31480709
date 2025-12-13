@@ -2,9 +2,17 @@ const { Order, OrderItem, Product, User } = require('../models');
 
 class OrderRepository {
   // Crear una orden con sus items
-  async createOrder(userId, items, totalAmount, status, transaction) {
+  async createOrder(userId, items, totalAmount, status, paymentReference, currency, description, transactionDate, transaction) {
     const order = await Order.create(
-      { userId, totalAmount, status },
+      {
+        userId,
+        totalAmount,
+        status,
+        paymentReference,
+        currency,
+        description,
+        transactionDate
+      },
       { transaction }
     );
 
@@ -15,7 +23,9 @@ class OrderRepository {
           orderId: order.id,
           productId: item.productId,
           quantity: item.quantity,
-          unitPrice: item.unitPrice
+          unitPrice: item.unitPrice,
+          currency: currency,
+          subtotal: item.quantity * item.unitPrice
         },
         { transaction }
       );
