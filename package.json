@@ -5,7 +5,7 @@
   "type": "commonjs",
   "scripts": {
     "start": "node ./bin/www",
-    "test": "./node_modules/.bin/jest",
+    "test": "jest",
     "postinstall": "npm rebuild sqlite3"
   },
   "dependencies": {

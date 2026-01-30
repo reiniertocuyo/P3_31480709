@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Registro de Usuario</title>
+</head>
+<body>
+
+    <table width="100%" height="300">
+        <tr>
+            <td align="center" valign="middle">
+
+                <h3>Registro de Nueva Cuenta</h3>
+
+                <form id="registerForm">
+                    <table border="0">
+                        <tr>
+                            <td>Nombre Completo:</td>
+                            <td><input type="text" id="fullName" name="nombre" required></td>
+                        </tr>
+                        <tr>
+                            <td>Email:</td>
+                            <td><input type="email" id="email" name="email" required></td>
+                        </tr>
+                        <tr>
+                            <td>Contraseña:</td>
+                            <td><input type="password" id="password" name="password" required></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" align="right">
+                                <input type="submit" value="Registrar">
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+
+                <br>
+                <font size="2">
+                    <a href="index.html">Volver al Inicio de Sesión</a>
+                </font>
+
+                <div id="message" style="margin-top: 10px;"></div>
+
+            </td>
+        </tr>
+    </table>
+
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const fullName = document.getElementById('fullName').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const messageDiv = document.getElementById('message');
+
+            try {
+                // Petición al endpoint /register que vimos en tus tests
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fullName, email, password })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.status === 'success') {
+                    messageDiv.style.color = 'green';
+                    messageDiv.innerText = '¡Registro exitoso! Redirigiendo al login...';
+                    
+                    // Esperamos 2 segundos para que el usuario lea el mensaje y redirigimos
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 2000);
+                } else {
+                    messageDiv.style.color = 'red';
+                    // Mostramos el mensaje de error que viene del backend (ej: "Email ya registrado")
+                    messageDiv.innerText = result.data?.message || 'Error en el registro';
+                }
+            } catch (error) {
+                messageDiv.style.color = 'red';
+                messageDiv.innerText = 'Error de conexión con el servidor';
+            }
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Catálogo de Productos</title>
+    <script>
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = 'index.html';
+        }
+    </script>
+</head>
+<body onload="inicializarPagina()">
+
+<table width="100%" border="0" cellpadding="5" cellspacing="0" bgcolor="#eeeeee">
+    <tr>
+        <td>
+            <form id="filterForm">
+                <table border="0" width="100%">
+                    <tr>
+                        <td>
+                            <b>Buscar:</b> 
+                            <input type="text" id="search" name="search" size="50" placeholder="Nombre del producto...">
+                            <input type="submit" value="Aplicar Filtros">
+                        </td>
+                    </tr>
+                </table>
+
+                <table border="0" cellspacing="5">
+                    <tr>
+                        <td>
+                            <font size="2">Tags:</font><br>
+                            <select id="tagSelect" name="tags">
+                                <option value="">Seleccionar...</option>
+                                </select>
+                        </td>
+                        <td>
+                            <font size="2">Categoría:</font><br>
+                            <select id="categorySelect" name="category">
+                                <option value="">Seleccionar...</option>
+                                </select>
+                        </td>
+                        <td>
+                            <font size="2">Idioma:</font><br>
+                            <input type="text" id="language" name="language" size="10">
+                        </td>
+                        <td>
+                            <font size="2">Año:</font><br>
+                            <input type="number" id="release_year" name="release_year" min="1900" max="2026" style="width: 60px;">
+                        </td>
+                        <td>
+                            <font size="2">Precio Mín:</font><br>
+                            <input type="number" id="price_min" name="price_min" size="8">
+                        </td>
+                        <td>
+                            <font size="2">Precio Max:</font><br>
+                            <input type="number" id="price_max" name="price_max" size="8">
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </td>
+    </tr>
+</table>
+<hr size="1" noshade>
+
+<div id="productContainer">
+    <p>Cargando productos...</p>
+</div>
+
+<script>
+    const API_TOKEN = localStorage.getItem('token');
+    let paginaActual = 1;
+
+    async function inicializarPagina() {
+        // Ejecutamos la carga de filtros y productos al mismo tiempo
+        await Promise.all([
+            cargarSelect('/tags', 'tagSelect'),
+            cargarSelect('/categories', 'categorySelect'),
+            cargarProductos()
+        ]);
+    }
+
+    // FUNCIÓN PARA LLENAR LOS SELECTS (Tags y Categorías)
+    async function cargarSelect(endpoint, selectId) {
+        try {
+            const response = await fetch(endpoint, {
+                headers: { 'Authorization': `Bearer ${API_TOKEN}` }
+            });
+            const result = await response.json();
+            
+            // Verificamos si la respuesta viene en result.data (estándar JSend)
+            const items = result.data || result;
+            const select = document.getElementById(selectId);
+
+            items.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.id;
+                option.textContent = item.name;
+                select.appendChild(option);
+            });
+        } catch (error) {
+            console.error(`Error cargando ${endpoint}:`, error);
+        }
+    }
+
+    // FUNCIÓN PARA CARGAR PRODUCTOS (Con o sin filtros)
+    async function cargarProductos() {
+        const container = document.getElementById('productContainer');
+        
+        // Recogemos los valores actuales de los filtros
+        const search = document.getElementById('search').value;
+        const category = document.getElementById('categorySelect').value;
+        const tags = document.getElementById('tagSelect').value;
+        const language = document.getElementById('language').value;
+        const year = document.getElementById('release_year').value;
+        const pMin = document.getElementById('price_min').value;
+        const pMax = document.getElementById('price_max').value;
+
+        // Construimos la URL con Query Params (Basado en tus tests)
+        let url = `/products?search=${search}&category=${category}&tags=${tags}&language=${language}&release_year=${year}&price_min=${pMin}&price_max=${pMax}&page=${paginaActual}`;
+
+        try {
+            const response = await fetch(url);
+            const result = await response.json();
+            
+            // Según tu repository, los productos vienen en result.data.data
+            const productos = result.data.data;
+
+            if (productos.length === 0) {
+                container.innerHTML = "<p>No se encontraron productos con esos filtros.</p>";
+                return;
+            }
+
+            // Dibujamos los productos en una tabla simple
+            let html = '<table width="100%" border="1" cellpadding="10" style="border-collapse: collapse;">';
+            productos.forEach(p => {
+
+                // 1. Convertimos el array de objetos Tags en un solo texto
+                const etiquetasTexto = p.Tags && p.Tags.length > 0 
+                    ? p.Tags.map(t => t.name).join(', ') 
+                    : 'Sin etiquetas';
+
+                html += `
+                    <tr>
+                        <td width="150" align="center" bgcolor="#f9f9f9">
+                            [IMAGEN ${p.id}]
+                        </td>
+                        <td>
+                            <b>${p.name}</b><br>
+                            <small>${p.description}</small><br>
+                            <font size="2">Categorias: </font> <font size="2" color="blue">${p.Category?.name || ''}</font> <br>
+                            <font size="2">Tags: </font> <font size="2" color="green">${etiquetasTexto}</font>
+                        </td>
+                        <td width="100" align="center">
+                            <b>$${p.price}</b><br>
+                            <button onclick="agregarAlCarrito(${p.id}, '${p.name}')">Añadir</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            html += '</table>';
+
+            // Calculamos si hay más páginas (result.data.total y result.data.limit vienen del backend)
+            const totalProductos = result.data.total;
+            const limitePorPagina = result.data.limit;
+            const totalPaginas = Math.ceil(totalProductos / limitePorPagina);
+
+            // Añadimos los controles de paginación
+            html += `
+                <div style="margin-top: 20px; text-align: center;">
+                    <button onclick="cambiarPagina(-1)" ${paginaActual === 1 ? 'disabled' : ''}>Anterior</button>
+                    <span style="margin: 0 15px;">Página ${paginaActual} de ${totalPaginas}</span>
+                    <button onclick="cambiarPagina(1)" ${paginaActual >= totalPaginas ? 'disabled' : ''}>Siguiente</button>
+                </div>
+            `;
+
+            container.innerHTML = html;
+
+        } catch (error) {
+            container.innerHTML = "<p>Error al cargar el catálogo.</p>";
+        }
+    }
+
+    // Escuchar el formulario de filtros
+    document.getElementById('filterForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        paginaActual = 1;
+        cargarProductos();
+    });
+
+    // Función básica para el carrito (Día 3 del plan)
+    function agregarAlCarrito(id, nombre) {
+        let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+        carrito.push({ id, nombre });
+        localStorage.setItem('carrito', JSON.stringify(carrito));
+        alert(`${nombre} añadido al carrito`);
+    }
+
+    function cambiarPagina(delta) {
+        paginaActual += delta;
+        cargarProductos();
+        // Opcional: Volver al inicio de la página al cambiar
+        window.scrollTo(0, 0);
+    }
+</script>
+
+</body>
+</html>
