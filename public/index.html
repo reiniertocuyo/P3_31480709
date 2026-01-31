@@ -2,6 +2,12 @@
 <html>
 <head>
     <title>Login</title>
+    <script>
+        const token = localStorage.getItem('token');
+        if (token) {
+            window.location.href = 'productos.html';
+        }
+    </script>
 </head>
 <body>
 
@@ -65,7 +71,7 @@
                     
                     alert('¡Login exitoso!');
                     // 5. Redirigir a la página de éxito
-                    window.location.href = 'perfil.html';
+                    window.location.href = 'productos.html';
                 } else {
                     // Mostrar error si las credenciales fallan (401)
                     errorDiv.innerText = result.data?.message || 'Error al iniciar sesión';

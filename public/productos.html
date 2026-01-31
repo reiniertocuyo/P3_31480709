@@ -49,16 +49,27 @@
                         </td>
                         <td>
                             <font size="2">Precio Mín:</font><br>
-                            <input type="number" id="price_min" name="price_min" size="8">
+                            <input type="number" id="price_min" name="price_min" min="0" size="8">
                         </td>
                         <td>
                             <font size="2">Precio Max:</font><br>
-                            <input type="number" id="price_max" name="price_max" size="8">
+                            <input type="number" id="price_max" name="price_max" min="0" size="8">
                         </td>
                     </tr>
                 </table>
             </form>
         </td>
+
+        <td width="200" align="right" valign="middle" style="border-left: 1px solid #ddd; padding-left: 15px;">
+            <button onclick="window.location.href='carrito.html'" style="width: 150px; height: 35px; background-color: #4CAF50; color: white; cursor: pointer; margin-bottom: 5px; font-weight: bold;">
+                VER CARRITO
+            </button>
+            <br>
+            <button onclick="cerrarSesion()" style="width: 150px; height: 30px; background-color: #f44336; color: white;cursor: pointer; font-size: 11px;">
+                CERRAR SESIÓN
+            </button>
+        </td>
+
     </tr>
 </table>
 <hr size="1" noshade>
@@ -68,40 +79,56 @@
 </div>
 
 <script>
-    const API_TOKEN = localStorage.getItem('token');
+    //const API_TOKEN = localStorage.getItem('token');
     let paginaActual = 1;
 
-    async function inicializarPagina() {
-        // Ejecutamos la carga de filtros y productos al mismo tiempo
-        await Promise.all([
-            cargarSelect('/tags', 'tagSelect'),
-            cargarSelect('/categories', 'categorySelect'),
-            cargarProductos()
-        ]);
+async function inicializarPagina() {
+    // 2. Verificación extra de seguridad antes de disparar peticiones
+    if (!localStorage.getItem('token')) {
+        window.location.href = 'index.html';
+        return;
     }
 
-    // FUNCIÓN PARA LLENAR LOS SELECTS (Tags y Categorías)
-    async function cargarSelect(endpoint, selectId) {
-        try {
-            const response = await fetch(endpoint, {
-                headers: { 'Authorization': `Bearer ${API_TOKEN}` }
-            });
-            const result = await response.json();
-            
-            // Verificamos si la respuesta viene en result.data (estándar JSend)
-            const items = result.data || result;
-            const select = document.getElementById(selectId);
+    await Promise.all([
+        cargarSelect('/tags', 'tagSelect'),
+        cargarSelect('/categories', 'categorySelect'),
+        cargarProductos()
+    ]);
+}
 
-            items.forEach(item => {
-                const option = document.createElement('option');
-                option.value = item.id;
-                option.textContent = item.name;
-                select.appendChild(option);
-            });
-        } catch (error) {
-            console.error(`Error cargando ${endpoint}:`, error);
+async function cargarSelect(endpoint, selectId) {
+    // 3. Obtenemos el token justo en el momento de la petición
+    const tokenSeguro = localStorage.getItem('token');
+    
+    try {
+        const response = await fetch(endpoint, {
+            headers: { 'Authorization': `Bearer ${tokenSeguro}` }
+        });
+
+        // Si el servidor reinició y el token ya no vale, mandamos a login
+        if (response.status === 401) {
+            localStorage.removeItem('token');
+            window.location.href = 'index.html';
+            return;
         }
+
+        const result = await response.json();
+        const items = result.data || result;
+        const select = document.getElementById(selectId);
+
+        // Limpiamos opciones previas (excepto la primera) por si acaso
+        select.innerHTML = '<option value="">Seleccionar...</option>';
+
+        items.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.id;
+            option.textContent = item.name;
+            select.appendChild(option);
+        });
+    } catch (error) {
+        console.error(`Error cargando ${endpoint}:`, error);
     }
+}
 
     // FUNCIÓN PARA CARGAR PRODUCTOS (Con o sin filtros)
     async function cargarProductos() {
@@ -206,6 +233,47 @@
         // Opcional: Volver al inicio de la página al cambiar
         window.scrollTo(0, 0);
     }
+
+
+    const inputMin = document.getElementById('price_min');
+    const inputMax = document.getElementById('price_max');
+
+// 1. Cuando cambie el MÍNIMO
+inputMin.addEventListener('input', function() {
+    if (this.value < 0) this.value = 0;
+
+    const minVal = parseFloat(this.value) || 0;
+    const maxVal = parseFloat(inputMax.value) || 0;
+
+    // Si el mínimo alcanza o supera al máximo, empujamos al máximo hacia arriba
+    if (minVal > maxVal && inputMax.value !== "") {
+        inputMax.value = minVal;
+    }
+});
+
+// 2. Cuando cambie el MÁXIMO
+inputMax.addEventListener('change', function() {
+    const minVal = parseFloat(inputMin.value) || 0;
+    const maxVal = parseFloat(this.value) || 0;
+
+    // Solo corregimos si el usuario intenta poner un valor menor al mínimo
+    if (maxVal < minVal) {
+        this.value = minVal;
+    }
+});
+
+function cerrarSesion() {
+    // 1. Limpiar rastro de seguridad
+    localStorage.removeItem('token');
+    
+    // 2. Limpiar rastro de negocio (Opcional, por si no quieres que el siguiente 
+    // usuario vea lo que dejó el anterior)
+    localStorage.removeItem('carrito'); 
+    
+    // 3. Salir
+    window.location.href = 'index.html';
+}
+
 </script>
 
 </body>

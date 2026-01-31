@@ -4,10 +4,10 @@
     <title>Mi Carrito de Compras</title>
     <script>
         // EL GUARDIÁN: Si no hay token, no hay compra
-        /*const token = localStorage.getItem('token');
+        const token = localStorage.getItem('token');
         if (!token) {
             window.location.href = 'index.html';
-        }*/
+        }
     </script>
 </head>
 <body onload="renderizarCarrito()">
@@ -150,6 +150,10 @@ async function cargarHistorial() {
         const response = await fetch('/orders?page=1&limit=10', {
             headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         });
+
+        // NUEVO: Verificación de token
+        if (verificarSesion(response.status)) return;
+
         const result = await response.json();
         const ordenes = result.data;
 
@@ -267,7 +271,8 @@ async function cargarHistorial() {
             },
             body: JSON.stringify(payload)
         });
-
+        // NUEVO: Verificación de token
+        if (verificarSesion(response.status)) return;
         const result = await response.json();
 
         if (response.ok) {
@@ -286,6 +291,18 @@ async function cargarHistorial() {
         alert('Error de conexión con el servidor. Revisa si el backend está encendido.');
     }
 });
+
+
+ function verificarSesion(status) {
+    if (status === 401) {
+        alert("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
+        localStorage.removeItem('token');
+        window.location.href = 'index.html';
+        return true;
+    }
+    return false;
+}
+
 
 </script>
 
