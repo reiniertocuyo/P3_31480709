@@ -153,7 +153,7 @@
                         </td>
                         <td width="100" align="center">
                             <b>$${p.price}</b><br>
-                            <button onclick="agregarAlCarrito(${p.id}, '${p.name}')">Añadir</button>
+                            <button onclick="agregarAlCarrito(${p.id}, '${p.name}', ${p.price})">Añadir</button>
                         </td>
                     </tr>
                 `;
@@ -189,9 +189,13 @@
     });
 
     // Función básica para el carrito (Día 3 del plan)
-    function agregarAlCarrito(id, nombre) {
+    function agregarAlCarrito(id, nombre, precio) {
         let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
-        carrito.push({ id, nombre });
+        carrito.push({ 
+            id: id, 
+            nombre: nombre, 
+            precio: parseFloat(precio) 
+        });
         localStorage.setItem('carrito', JSON.stringify(carrito));
         alert(`${nombre} añadido al carrito`);
     }
