@@ -38,23 +38,39 @@ module.exports = (params) => {
     where.publisher = params.publisher;
   }
 
+  // --- REEMPLAZA DESDE AQUÍ ---
+  
+  // Categoría: Siempre la incluimos para tener el nombre, pero filtramos solo si llega el parámetro
+  const categoryInclude = {
+    model: require('../models').Category,
+    required: false // Permitir que se vean productos aunque no tengan categoría
+  };
+
   if (params.category) {
-    include.push({
-      model: require('../models').Category,
-      where: { name: params.category },
-      required: true
-    });
+    // Si envías un número, filtramos por ID, si no, por nombre
+    const isId = !isNaN(params.category);
+    categoryInclude.where = isId ? { id: params.category } : { name: params.category };
+    categoryInclude.required = true; // Si hay filtro, solo mostrar los que coincidan
   }
+  include.push(categoryInclude);
+
+  // Tags: Siempre los incluimos, pero filtramos solo si llega el parámetro
+  const tagInclude = {
+    model: require('../models').Tag,
+    through: { attributes: [] },
+    required: false
+  };
 
   if (params.tags) {
-    const tagIds = params.tags.split(',').map(id => parseInt(id));
-    include.push({
-      model: require('../models').Tag,
-      where: { id: { [Op.in]: tagIds } },
-      through: { attributes: [] },
-      required: true
-    });
+    const tagIds = params.tags.split(',').map(id => parseInt(id)).filter(id => !isNaN(id));
+    if (tagIds.length > 0) {
+      tagInclude.where = { id: { [Op.in]: tagIds } };
+      tagInclude.required = true;
+    }
   }
+  include.push(tagInclude);
+
+  // --- HASTA AQUÍ ---
 
 
   // Filtro por idioma

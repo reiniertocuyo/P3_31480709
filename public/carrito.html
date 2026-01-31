@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mi Carrito de Compras</title>
+    <script>
+        // EL GUARDIÁN: Si no hay token, no hay compra
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = 'index.html';
+        }
+    </script>
+</head>
+<body onload="renderizarCarrito()">
+
+<h1>Tu Carrito</h1>
+<hr size="1" noshade>
+
+<table width="100%" border="0" cellpadding="10" cellspacing="0">
+    <tr valign="top">
+        <td width="50%" style="border-right: 1px solid #ccc;">
+            
+            <div id="panelCarritoActivo">
+                <h3>Productos Seleccionados</h3>
+                <div id="listaCarrito">
+                    <p>Cargando productos...</p>
+                </div>
+                <br>
+                <div id="totalSeccion" style="text-align: right; padding-right: 20px;"></div>
+            </div>
+
+            <div id="panelHistorial" style="display: none;">
+                <h3>Tu Historial de Compras</h3>
+                <div id="listaHistorial">
+                    <p>Cargando historial...</p>
+                </div>
+                <br>
+                <button onclick="volverAlCarrito()">← Volver al Carrito</button>
+            </div>
+        </td>
+
+        <td width="50%" align="center">
+    <div id="panelOpciones">
+        <h3>Resumen y Acciones</h3>
+        <table border="0" cellpadding="10">
+            <tr>
+                <td><button onclick="mostrarPago()" style="width: 200px; height: 40px; background-color: #4CAF50; color: white;"><b>PAGAR TODO</b></button></td>
+            </tr>
+            <tr>
+                <td><button onclick="window.location.href='productos.html'" style="width: 200px;">Seguir Comprando</button></td>
+            </tr>
+            <tr>
+                <td><button onclick="cargarHistorial()" style="width: 200px;">Mostrar Historial</button></td>
+            </tr>
+            <tr>
+                <td><button onclick="cerrarSesion()" style="width: 200px; color: red;">Cerrar Sesión</button></td>
+            </tr>
+        </table>
+    </div>
+
+    <div id="panelPago" style="display: none; border: 1px solid #000; padding: 20px; background-color: #f0f0f0;">
+    <h3>Datos de Pago</h3>
+    <form id="formCheckout">
+        <table border="0" cellpadding="5">
+            <tr>
+                <td align="left">Nombre en Tarjeta:</td>
+                <td colspan="3"><input type="text" id="pay_name" style="width: 95%" required></td>
+            </tr>
+            <tr>
+                <td align="left">Número de Tarjeta:</td>
+                <td colspan="3"><input type="text" id="pay_card" placeholder="XXXX XXXX XXXX XXXX" style="width: 95%" required></td>
+            </tr>
+            <tr>
+                <td align="left">Expira (MM/AA):</td>
+                <td><input type="text" id="pay_month" placeholder="MM" size="2" required></td>
+                <td><input type="text" id="pay_year" placeholder="AAAA" size="4" required></td>
+                <td align="left">CVV: <input type="text" id="pay_cvv" size="3" required></td>
+            </tr>
+            <tr>
+                <td align="left">Método de pago:</td>
+                <td colspan="3">
+                    <select id="pay_method" style="width: 100%">
+                        <option value="credit_card">Crédito</option>
+                        <option value="debit_card">Débito</option>
+                    </select>
+                </td>
+            </tr>
+        </table>
+        <br>
+        <button type="submit" style="background-color: blue; color: white; padding: 10px;">Confirmar Compra</button>
+        <button type="button" onclick="mostrarOpciones()" style="background-color: gray; color: white; padding: 10px;">Cancelar</button>
+    </form>
+</div>
+
+    </tr>
+</table>
+
+<script>
+    function renderizarCarrito() {
+        const contenedor = document.getElementById('listaCarrito');
+        const seccionTotal = document.getElementById('totalSeccion');
+        
+        // Recuperamos el carrito del localStorage
+        let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+
+        if (carrito.length === 0) {
+            contenedor.innerHTML = "<p>El carrito está vacío.</p>";
+            seccionTotal.innerHTML = "";
+            return;
+        }
+
+        let html = '<table width="100%" border="1" cellpadding="5" style="border-collapse: collapse;">';
+        let sumaTotal = 0;
+
+        carrito.forEach((producto, index) => {
+            const precio = parseFloat(producto.precio) || 0;
+            sumaTotal += precio;
+
+            html += `
+                <tr>
+                    <td>
+                        <b>${producto.nombre}</b><br>
+                        <small>ID: ${producto.id}</small>
+                    </td>
+                    <td align="right" width="80">
+                        $${precio.toFixed(2)}
+                    </td>
+                    <td align="center" width="50">
+                        <button onclick="eliminarDelCarrito(${index})" style="color: red;">X</button>
+                    </td>
+                </tr>
+            `;
+        });
+
+        html += '</table>';
+        contenedor.innerHTML = html;
+
+        // Mostrar el Gran Total
+        seccionTotal.innerHTML = `<h2>Total: $${sumaTotal.toFixed(2)}</h2>`;
+    }
+
+async function cargarHistorial() {
+    // 1. Cambiar paneles
+    document.getElementById('panelCarritoActivo').style.display = 'none';
+    document.getElementById('panelHistorial').style.display = 'block';
+    
+    const listaH = document.getElementById('listaHistorial');
+    listaH.innerHTML = "Cargando órdenes...";
+
+    try {
+        const response = await fetch('/orders?page=1&limit=10', {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+
+        // NUEVO: Verificación de token
+        if (verificarSesion(response.status)) return;
+
+        const result = await response.json();
+        const ordenes = result.data;
+
+        if (!ordenes || ordenes.length === 0) {
+            listaH.innerHTML = "<p>No tienes compras registradas.</p>";
+            return;
+        }
+
+        let html = '<table width="100%" border="1" style="border-collapse: collapse;" cellpadding="10">';
+        html += '<tr bgcolor="#eee"><th>ID</th><th>Productos</th><th>Fecha</th><th>Total</th></tr>';
+        
+        ordenes.forEach(o => {
+            // Extraemos los nombres de los productos si vienen en el array de items
+            // Si el backend no envía el nombre del producto en el item, pondremos "Producto ID: #"
+            const nombresP = o.items && o.items.length > 0 
+                ? o.items.map(i => i.Product ? i.Product.name : `Producto #${i.productId}`).join(', ')
+                : "Sin detalles";
+
+            html += `
+                <tr>
+                    <td align="center">${o.id}</td>
+                    <td>
+                        <b>${nombresP}</b><br>
+                        <small style="color: gray;">Ref: ${o.paymentReference.substring(0,8)}...</small>
+                    </td>
+                    <td>${new Date(o.createdAt).toLocaleDateString()}</td>
+                    <td align="right" style="font-weight: bold;">
+                        $${parseFloat(o.totalAmount).toFixed(2)}
+                    </td>
+                </tr>
+            `;
+        });
+        
+        html += '</table>';
+        listaH.innerHTML = html;
+
+    } catch (error) {
+        console.error(error);
+        listaH.innerHTML = "<p>Error al conectar con el servidor.</p>";
+    }
+}
+
+    function volverAlCarrito() {
+        document.getElementById('panelCarritoActivo').style.display = 'block';
+        document.getElementById('panelHistorial').style.display = 'none';
+    }
+
+    function eliminarDelCarrito(index) {
+        let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+        carrito.splice(index, 1); // Elimina el elemento en esa posición
+        localStorage.setItem('carrito', JSON.stringify(carrito));
+        renderizarCarrito(); // Refresca la vista
+    }
+
+    function cerrarSesion() {
+        localStorage.removeItem('token');
+        localStorage.removeItem('carrito');
+        window.location.href = 'index.html';
+    }
+
+    function mostrarPago() {
+    document.getElementById('panelOpciones').style.display = 'none';
+    document.getElementById('panelPago').style.display = 'block';
+    }
+
+    function mostrarOpciones() {
+    document.getElementById('panelOpciones').style.display = 'block';
+    document.getElementById('panelPago').style.display = 'none';
+    }
+
+
+
+ document.getElementById('formCheckout').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // 1. Preparamos los items (Mapeamos id a productId y sumamos cantidades)
+    let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+    
+    if (carrito.length === 0) {
+        alert("El carrito está vacío");
+        return;
+    }
+
+    const itemsProcesados = Object.values(carrito.reduce((acc, prod) => {
+        if (!acc[prod.id]) {
+            acc[prod.id] = { productId: prod.id, quantity: 0 };
+        }
+        acc[prod.id].quantity += 1;
+        return acc;
+    }, {}));
+
+    // 2. Construimos el Payload capturando los datos por su ID
+    const payload = {
+        items: itemsProcesados,
+        paymentMethod: document.getElementById('pay_method').value,
+        paymentDetails: {
+            'full-name': document.getElementById('pay_name').value,
+            'card-number': document.getElementById('pay_card').value,
+            'expiration-month': document.getElementById('pay_month').value,
+            'expiration-year': document.getElementById('pay_year').value,
+            'cvv': document.getElementById('pay_cvv').value,
+            'currency': 'USD', 
+            'description': 'Compra en VideoStore Online'
+        }
+    };
+
+    console.log("Enviando pedido:", payload); // Para depuración
+
+    try {
+        const response = await fetch('/orders', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify(payload)
+        });
+        // NUEVO: Verificación de token
+        if (verificarSesion(response.status)) return;
+        const result = await response.json();
+
+        if (response.ok) {
+            // Caso exitoso (Código 201 según tu controlador)
+            alert('¡Compra exitosa! Orden ID: ' + result.data.orderId);
+            localStorage.removeItem('carrito'); 
+            window.location.href = 'productos.html'; 
+        } else {
+            // Manejo de errores lógicos del backend (Stock, Pago, etc.)
+            // Accedemos a result.data.message siguiendo el formato JSend (fail/error)
+            const mensajeError = result.data?.message || result.message || 'Error desconocido';
+            alert('No se pudo completar la compra: ' + mensajeError);
+        }
+    } catch (error) {
+        console.error("Error en el fetch:", error);
+        alert('Error de conexión con el servidor. Revisa si el backend está encendido.');
+    }
+});
+
+
+ function verificarSesion(status) {
+    if (status === 401) {
+        alert("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
+        localStorage.removeItem('token');
+        window.location.href = 'index.html';
+        return true;
+    }
+    return false;
+}
+
+
+</script>
+
+</body>
+</html>

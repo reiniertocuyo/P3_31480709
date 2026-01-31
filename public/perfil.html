@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Perfil de Usuario</title>
+    <script>
+        // --- EL GUARDIÁN ---
+        // Se ejecuta antes de que se cargue el resto del cuerpo de la página
+        const token = localStorage.getItem('token');
+        
+        if (!token) {
+            // Si no hay token, redirigir al login inmediatamente
+            window.location.href = 'index.html';
+        }
+    </script>
+</head>
+<body>
+
+    <table width="100%" height="300">
+        <tr>
+            <td align="center" valign="middle">
+
+                <h1 id="welcomeMessage">Cargando...</h1>
+
+                <button id="logoutBtn">Cerrar Sesión</button>
+
+            </td>
+        </tr>
+    </table>
+
+    <script>
+        // 1. Validar el token con el servidor
+        async function validarSesion() {
+            const token = localStorage.getItem('token');
+            const welcomeMessage = document.getElementById('welcomeMessage');
+
+            try {
+                // Intentamos acceder a /users (ruta protegida en tus tests)
+                const response = await fetch('/users', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    // Si el servidor acepta el token
+                    welcomeMessage.innerText = "¡Bienvenido a tu perfil!";
+                } else {
+                    // Si el token expiró o es falso (Error 401 en tus tests)
+                    localStorage.removeItem('token');
+                    window.location.href = 'index.html';
+                }
+            } catch (error) {
+                console.error("Error de conexión");
+                welcomeMessage.innerText = "Error al verificar sesión";
+            }
+        }
+
+        // 2. Lógica de Cerrar Sesión
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            // Eliminamos el token de la memoria del navegador
+            localStorage.removeItem('token');
+            // Enviamos al login
+            window.location.href = 'index.html';
+        });
+
+        // Ejecutar validación al cargar
+        validarSesion();
+    </script>
+
+</body>
+</html>
